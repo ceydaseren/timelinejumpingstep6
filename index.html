@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timeline Jumpers — Step 6: Emotional Signature</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a1f;
+    --mid: #15122e;
+    --card: rgba(30, 26, 62, 0.6);
+    --border: rgba(255,255,255,0.08);
+    --glow-border: rgba(28,214,231,0.35);
+    --cyan: #1cd6e7;
+    --magenta: #f62bd1;
+    --purple: #8051c8;
+    --amber: #f4a749;
+    --text-pri: #f8f5ff;
+    --text-sec: rgba(248,245,255,0.72);
+    --text-muted: rgba(248,245,255,0.35);
+    --gradient: linear-gradient(135deg, #1cd6e7, #8051c8, #f62bd1);
+    --selection-color: #1cd6e7;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-pri);
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── STARS ── */
+  #stars {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: #fff;
+    animation: twinkle var(--dur, 3s) ease-in-out infinite;
+    opacity: var(--op, 0.5);
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: var(--op, 0.5); transform: scale(1); }
+    50% { opacity: calc(var(--op, 0.5) * 0.2); transform: scale(0.7); }
+  }
+
+  /* ── COSMIC GLOWS ── */
+  #glows {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.18;
+  }
+  .glow-cyan  { width: 600px; height: 600px; background: var(--cyan);    top: -180px; left: -180px; }
+  .glow-magenta { width: 500px; height: 500px; background: var(--magenta); bottom: -150px; right: -150px; }
+  .glow-purple  { width: 700px; height: 700px; background: var(--purple);  top: 50%; left: 50%; transform: translate(-50%,-50%); opacity: 0.12; }
+
+  /* ── CURSOR TRAIL ── */
+  .trail-dot {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    animation: fadeTrail 0.7s ease-out forwards;
+  }
+  .trail-sparkle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    font-size: 12px;
+    animation: fadeTrail 0.9s ease-out forwards;
+    color: var(--cyan);
+  }
+  @keyframes fadeTrail {
+    0% { opacity: 0.8; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0); }
+  }
+
+  /* ── PAGE WRAP ── */
+  #page-wrap {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── INTENTION BLOCK ── */
+  .intention-block {
+    background: var(--mid);
+    padding: 32px 40px;
+    text-align: center;
+    border-top: 2px solid transparent;
+    border-image: var(--gradient) 1;
+    border-left: none; border-right: none; border-bottom: none;
+  }
+  .intention-eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    text-shadow: 0 0 12px rgba(28,214,231,0.7);
+    margin-bottom: 12px;
+  }
+  .intention-statement {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: clamp(16px, 3vw, 20px);
+    color: var(--text-pri);
+    max-width: 620px;
+    margin: 0 auto 12px;
+    line-height: 1.5;
+  }
+  .intention-sub {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar-wrap {
+    background: var(--mid);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 40px;
+  }
+  .progress-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .progress-meta span {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-sec);
+  }
+  .progress-meta .step-count { font-weight: 400; font-size: 11px; }
+  .progress-meta .phase-name { font-weight: 600; }
+  .progress-track {
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--gradient);
+    width: calc(6 / 7 * 100%);
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main-content {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* ── STEP HEADER ── */
+  .step-header {
+    padding: 52px 0 36px;
+    border-bottom: 1px solid var(--border);
+  }
+  .step-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-sec);
+    margin-bottom: 20px;
+  }
+  .step-badge {
+    background: var(--cyan);
+    color: #0a0a1f;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    border-radius: 30px;
+    padding: 4px 10px;
+    letter-spacing: 0.08em;
+  }
+  .step-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: clamp(28px, 5vw, 40px);
+    color: var(--text-pri);
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .gradient-word {
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-style: italic;
+  }
+  .step-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 15px;
+    color: var(--text-sec);
+    line-height: 1.7;
+  }
+
+  /* ── SECTION BLOCKS ── */
+  .section-block {
+    padding: 40px 0 0;
+    opacity: 0;
+    transform: translateY(18px);
+    animation: fadeUp 0.6s ease forwards;
+  }
+  .section-block:nth-child(1) { animation-delay: 0.1s; }
+  .section-block:nth-child(2) { animation-delay: 0.25s; }
+  .section-block:nth-child(3) { animation-delay: 0.4s; }
+  .section-block:nth-child(4) { animation-delay: 0.55s; }
+  .section-block:nth-child(5) { animation-delay: 0.7s; }
+  .section-block:nth-child(6) { animation-delay: 0.85s; }
+  .section-block:nth-child(7) { animation-delay: 1.0s; }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 16px;
+  }
+  .section-block p {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 15px;
+    line-height: 1.85;
+    color: var(--text-sec);
+    margin-bottom: 16px;
+  }
+  .section-block p:last-child { margin-bottom: 0; }
+
+  /* ── FEELING TAGS ── */
+  .feeling-tags-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    margin-top: 20px;
+  }
+  .feeling-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .feeling-tag {
+    background: rgba(28,214,231,0.08);
+    border: 1px solid rgba(28,214,231,0.2);
+    color: var(--cyan);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    border-radius: 30px;
+    padding: 6px 14px;
+    text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.18s, border-color 0.18s, box-shadow 0.18s, color 0.18s;
+  }
+  .feeling-tag:hover {
+    background: rgba(28,214,231,0.16);
+    border-color: rgba(28,214,231,0.45);
+  }
+  .feeling-tag.active {
+    background: var(--cyan);
+    color: #0a0a1f;
+    border-color: var(--cyan);
+    box-shadow: 0 0 14px rgba(28,214,231,0.4);
+  }
+
+  /* ── BEFORE YOU WRITE CARD ── */
+  .before-write-card {
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glow-border);
+    border-radius: 16px;
+    padding: 36px 40px 32px;
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .breathe-ring-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    height: 70px;
+    position: relative;
+  }
+  .breathe-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1.5px solid var(--cyan);
+    animation: breathe 3s ease-in-out infinite;
+  }
+  .breathe-ring:nth-child(1) { width: 24px; height: 24px; opacity: 0.7; animation-delay: 0s; }
+  .breathe-ring:nth-child(2) { width: 44px; height: 44px; opacity: 0.4; animation-delay: 0.4s; }
+  .breathe-ring:nth-child(3) { width: 64px; height: 64px; opacity: 0.15; animation-delay: 0.8s; }
+  @keyframes breathe {
+    0%, 100% { transform: scale(0.92); }
+    50% { transform: scale(1.06); }
+  }
+  .before-write-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 12px;
+  }
+  .before-write-body {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    color: var(--text-sec);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
+
+  /* ── REFLECTION CARDS ── */
+  .reflection-card {
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-left: 3px solid var(--cyan);
+    border-top: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    border-radius: 0 12px 12px 0;
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 18px rgba(28,214,231,0.08), 0 0 40px rgba(28,214,231,0.04);
+    transition: box-shadow 0.3s ease;
+  }
+  .reflection-card:hover {
+    box-shadow: 0 0 28px rgba(28,214,231,0.18), 0 0 60px rgba(28,214,231,0.08);
+  }
+  .reflection-prompt {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    color: var(--text-sec);
+    margin-bottom: 8px;
+    line-height: 1.6;
+  }
+  .reflection-starter {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--cyan);
+    margin-bottom: 14px;
+  }
+  .reflection-card textarea {
+    width: 100%;
+    background: rgba(10,10,31,0.7);
+    border: none;
+    border-top: 2px solid var(--cyan);
+    border-radius: 0 0 6px 6px;
+    color: var(--text-pri);
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 1.7;
+    padding: 14px;
+    resize: vertical;
+    outline: none;
+    transition: box-shadow 0.2s ease;
+    min-height: 90px;
+  }
+  .reflection-card textarea:focus {
+    box-shadow: inset 0 0 16px rgba(28,214,231,0.08);
+  }
+  .save-notice {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+
+  /* ── SOUL CHECK CARD (special) ── */
+  .soul-check-card {
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(128,81,200,0.4);
+    border-radius: 16px;
+    padding: 32px 36px;
+    margin-bottom: 20px;
+  }
+  .soul-check-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--text-pri);
+    margin-bottom: 10px;
+  }
+  .soul-check-body {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 14px;
+    color: var(--text-sec);
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+  .soul-options {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .soul-option {
+    flex: 1;
+    min-width: 140px;
+    background: rgba(10,10,31,0.5);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+  .soul-option:hover {
+    border-color: rgba(128,81,200,0.5);
+    box-shadow: 0 0 18px rgba(128,81,200,0.15);
+  }
+  .soul-option.selected-soul {
+    border-color: var(--cyan);
+    background: rgba(28,214,231,0.08);
+    box-shadow: 0 0 20px rgba(28,214,231,0.15);
+  }
+  .soul-option.selected-ego {
+    border-color: var(--amber);
+    background: rgba(244,167,73,0.08);
+  }
+  .soul-option-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .soul-option.selected-soul .soul-option-label { color: var(--cyan); }
+  .soul-option.selected-ego .soul-option-label { color: var(--amber); }
+  .soul-option:not(.selected-soul):not(.selected-ego) .soul-option-label { color: var(--text-sec); }
+  .soul-option-desc {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .soul-note {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 16px;
+    line-height: 1.6;
+    font-style: normal;
+  }
+
+  /* ── TIMELINE NAME INPUT ── */
+  .timeline-name-card {
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glow-border);
+    border-radius: 16px;
+    padding: 32px 36px;
+    margin-bottom: 20px;
+  }
+  .tl-name-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 8px;
+  }
+  .tl-name-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--text-pri);
+    margin-bottom: 8px;
+  }
+  .tl-name-sub {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 14px;
+    color: var(--text-sec);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .tl-name-example {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  .tl-name-example em {
+    color: var(--text-sec);
+    font-style: normal;
+    font-weight: 400;
+  }
+  .tl-name-input-wrap {
+    position: relative;
+  }
+  #timeline-name-input {
+    width: 100%;
+    background: rgba(10,10,31,0.7);
+    border: 1px solid var(--border);
+    border-bottom: 2px solid var(--cyan);
+    border-radius: 8px 8px 0 0;
+    color: var(--text-pri);
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 17px;
+    padding: 14px 16px;
+    outline: none;
+    transition: box-shadow 0.2s ease;
+  }
+  #timeline-name-input:focus {
+    box-shadow: inset 0 0 20px rgba(28,214,231,0.06);
+  }
+  #timeline-name-input::placeholder {
+    color: var(--text-muted);
+    font-weight: 300;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+  }
+  .tl-name-preview {
+    margin-top: 16px;
+    padding: 14px 18px;
+    background: rgba(28,214,231,0.06);
+    border: 1px solid rgba(28,214,231,0.15);
+    border-radius: 10px;
+    display: none;
+  }
+  .tl-name-preview.visible { display: block; }
+  .tl-name-preview-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 6px;
+  }
+  .tl-name-preview-text {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--text-pri);
+  }
+
+  /* ── ACTION STEPS ── */
+  .action-steps-card {
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-top: 2px solid transparent;
+    border-image: var(--gradient) 1;
+    border-left: none; border-right: none; border-bottom: none;
+    border-top: 2px solid;
+    border-image-source: var(--gradient);
+    border-radius: 0 0 16px 16px;
+    padding: 32px 36px;
+    margin-bottom: 28px;
+  }
+  .action-steps-card {
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 32px 36px;
+    margin-bottom: 28px;
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--purple);
+  }
+  .action-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 16px;
+  }
+  .action-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--text-pri);
+    margin-bottom: 20px;
+  }
+  .action-step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+  .action-step:last-child { margin-bottom: 0; }
+  .action-num {
+    background: var(--gradient);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    color: #fff;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .action-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 14px;
+    color: var(--text-sec);
+    line-height: 1.7;
+  }
+
+  /* ── SAVE YOUR WORK ── */
+  .save-work-card {
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 36px;
+    margin-top: 48px;
+    margin-bottom: 28px;
+    text-align: left;
+  }
+  .save-work-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--text-pri);
+    margin-bottom: 10px;
+  }
+  .save-work-sub {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 13px;
+    color: var(--text-sec);
+    margin-bottom: 20px;
+    line-height: 1.7;
+  }
+  .copy-btn {
+    background: var(--gradient);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    border: none;
+    border-radius: 30px;
+    padding: 13px 28px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .copy-btn:hover { opacity: 0.85; }
+  .copy-toast {
+    margin-top: 14px;
+    background: var(--mid);
+    border: 1px solid var(--glow-border);
+    color: var(--cyan);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    border-radius: 30px;
+    padding: 8px 20px;
+    letter-spacing: 0.08em;
+    display: inline-block;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .copy-toast.show { opacity: 1; }
+
+  /* ── REFLECTION HEADER ── */
+  .reflection-header {
+    font-family: 'Fraunces', serif !important;
+    font-weight: 700 !important;
+    font-size: 20px !important;
+    color: #f8f5ff !important;
+    margin-bottom: 20px !important;
+    margin-top: 24px !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    display: block;
+  }
+
+  /* ── NAV BUTTONS ── */
+  .nav-buttons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-top: 8px;
+    margin-bottom: 48px;
+    gap: 12px;
+  }
+  .btn-done {
+    background: var(--gradient);
+    border: none;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    border-radius: 30px;
+    padding: 11px 28px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .btn-done:hover { opacity: 0.85; }
+  .step-complete-text {
+    display: none;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cyan);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 11px;
+    color: rgba(248,245,255,0.25);
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+    .intention-block { padding: 24px 20px; }
+    .progress-bar-wrap { padding: 16px 20px; }
+    .main-content { padding: 0 16px 60px; }
+    .step-header { padding: 36px 0 28px; }
+    .before-write-card { padding: 28px 20px 24px; }
+    .reflection-card { padding: 22px 18px; }
+    .soul-check-card { padding: 24px 20px; }
+    .timeline-name-card { padding: 24px 20px; }
+    .action-steps-card { padding: 24px 20px; }
+    .save-work-card { padding: 24px 20px; }
+    .soul-options { flex-direction: column; }
+    .soul-option { min-width: unset; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Stars -->
+<div id="stars"></div>
+
+<!-- Glows -->
+<div id="glows">
+  <div class="glow glow-cyan"></div>
+  <div class="glow glow-magenta"></div>
+  <div class="glow glow-purple"></div>
+</div>
+
+<div id="page-wrap">
+
+  <!-- Intention Block -->
+  <div class="intention-block">
+    <div class="intention-eyebrow">Selection Phase · Step 6 of 7</div>
+    <div class="intention-statement">I allow myself to feel fully into the reality I am choosing.</div>
+    <div class="intention-sub">Set this intention before you begin</div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="progress-bar-wrap">
+    <div class="progress-inner">
+      <div class="progress-meta">
+        <span class="phase-name">Selection Phase</span>
+        <span class="step-count">Step 6 of 7</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- Step Header -->
+    <div class="step-header">
+      <div class="step-eyebrow">
+        <span class="step-badge">Step 6</span>
+        Selection Phase
+      </div>
+      <h1 class="step-title">Emotional <span class="gradient-word">Signature</span></h1>
+      <p class="step-subtitle">Your new timeline has a feeling. Three things happen here: you tune into what this reality actually feels like in your body, you check whether it is soul-driven or ego-driven, and you give your timeline a name you can return to again and again.</p>
+    </div>
+
+    <!-- Action Steps — Overview first -->
+    <div class="section-block">
+      <div class="action-steps-card">
+        <div class="action-label">Action Steps</div>
+        <div class="action-title">What you are completing in Step 6</div>
+        <div class="action-step">
+          <div class="action-num">1</div>
+          <div class="action-text">Visualize your new timeline and write down the feelings that arise. Aim for descriptive, body-level words rather than concepts.</div>
+        </div>
+        <div class="action-step">
+          <div class="action-num">2</div>
+          <div class="action-text">Run your vision through the soul aligned filter. Mark whether it feels soul driven or ego driven, and note what you discover.</div>
+        </div>
+        <div class="action-step">
+          <div class="action-num">3</div>
+          <div class="action-text">Give your timeline a name. Keep it simple and direct. This name will carry you through the rest of the framework.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teaching Section 1 -->
+    <div class="section-block">
+      <div class="section-label">The feeling is the fuel</div>
+      <p>You have likely heard this in manifestation teachings before. The feeling you attach to a vision is the signal that broadcasts your chosen timeline outward. When you can genuinely access the feeling of a reality before it has physically arrived, you begin closing the gap between where you are and where you are going.</p>
+      <p>So as you hold your new timeline in your awareness, notice what arises. Does it feel expansive? Does it feel like your life force energy is increasing? Does it feel safe, empowering, joyful, easy and in flow? There will likely be more than one feeling. Let them all come through. The more vividly you can access this emotional state, the more powerfully it anchors your selection and sets the activation process in motion.</p>
+    </div>
+
+    <!-- Reflection 1: Feeling -->
+    <div class="section-block">
+
+      <div class="before-write-card">
+        <div class="breathe-ring-wrap">
+          <span class="breathe-ring"></span>
+          <span class="breathe-ring"></span>
+          <span class="breathe-ring"></span>
+        </div>
+        <div class="before-write-label">Before You Write</div>
+        <div class="before-write-body">Close your eyes for a moment. Bring your new timeline fully into your awareness. Let yourself see it, sense it, and breathe into it. When a feeling stirs, open your eyes and write.</div>
+      </div>
+
+      <div class="reflection-header">Your Reflection</div>
+
+      <div class="reflection-card">
+        <div class="reflection-prompt">What feelings arise when you fully visualize your new timeline? Describe them in your own words or use the list of words below.</div>
+        <div class="reflection-starter">When I imagine this reality, I feel...</div>
+        <textarea id="reflection-1" placeholder="Write the feelings as they come. You don't need to edit them."></textarea>
+        <div class="save-notice">This page does not save your responses. Save when done or transfer to your favourite journal.</div>
+      </div>
+
+      <div class="feeling-tags-label">Tap any words that resonate to add them to your reflection</div>
+      <div class="feeling-tags">
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Expansive</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Empowering</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Safe</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Joyful</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">In Flow</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Exciting</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Alive</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Free</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Peaceful</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Grounded</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Abundant</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Unstoppable</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Supported</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Purposeful</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Open</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Magnetic</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Clarity</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Fulfillment</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Confident</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Aligned</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Creative</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Light</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Secure</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Authentic</span>
+        <span class="feeling-tag" onclick="toggleFeeling(this)">Inspired</span>
+      </div>
+    </div>
+
+    <!-- Soul Aligned Filter -->
+    <div class="section-block">
+      <div class="section-label">The soul aligned filter</div>
+      <p>This is a quick internal check, not a judgment. Ego-driven visions are usually about acquiring things that signal status or worth to the outside world. Soul-aligned visions expand you inward as much as outward. They tend to feel like a calling rather than a craving.</p>
+      <p>Money is worth examining here because it can go either way. If money appears in your new timeline, get curious about why it is there. Is it because you want to show the world what you have, or because it gives you the freedom to live your purpose and create meaningful experiences? The latter is soul-aligned. One check-in is all you need. Trust the first honest answer that comes.</p>
+
+      <div class="soul-check-card">
+        <div class="soul-check-title">Is this vision soul aligned or ego aligned?</div>
+        <div class="soul-check-body">Tune in honestly. Your answer shapes how you move forward. Either result is information, not a verdict.</div>
+        <div class="soul-options">
+          <div class="soul-option" id="opt-soul" onclick="selectAlignment('soul')">
+            <div class="soul-option-label">Soul Aligned</div>
+            <div class="soul-option-desc">Feels like expansion, purpose, inner calling. It is about living fully, not proving anything.</div>
+          </div>
+          <div class="soul-option" id="opt-ego" onclick="selectAlignment('ego')">
+            <div class="soul-option-label">Ego Aligned</div>
+            <div class="soul-option-desc">Feels like acquiring, impressing, or filling a gap. Worth examining before moving on.</div>
+          </div>
+        </div>
+        <div class="soul-note" id="soul-note" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Timeline Name -->
+    <div class="section-block">
+      <div class="section-label">Name your timeline</div>
+      <p>Give your timeline a short, plain-language name. This is how you will refer to it in your mind, in your journal, and out loud. It should feel immediately recognizable to you, like the title of the chapter you are stepping into.</p>
+
+      <div class="timeline-name-card">
+        <div class="tl-name-label">Your Timeline Name</div>
+        <div class="tl-name-title">What is this timeline about?</div>
+        <div class="tl-name-sub">Imagine someone asks you directly: what timeline are you on? Your answer, without overthinking it, is the name.</div>
+        <div class="tl-name-example">Example: <em>"I am on the timeline of being fully compensated and supported by my spiritual business."</em></div>
+        <div class="tl-name-input-wrap">
+          <input type="text" id="timeline-name-input" placeholder="I am on the timeline of..." oninput="updateTimelinePreview()" maxlength="160">
+        </div>
+        <div class="tl-name-preview" id="tl-name-preview">
+          <div class="tl-name-preview-label">Your Timeline</div>
+          <div class="tl-name-preview-text" id="tl-preview-text"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mark as Done — right after last reflection -->
+    <div class="nav-buttons section-block">
+      <button class="btn-done" id="done-btn" onclick="markDone()">Done</button>
+      <span class="step-complete-text" id="complete-text">✓ Step Complete</span>
+    </div>
+
+    <!-- Save Your Work -->
+    <div class="section-block save-work-card">
+      <div class="save-work-title">Save Your Work</div>
+      <div class="save-work-sub">Your responses are not saved automatically. Click below to copy them, then paste into your notes app on your phone or computer.</div>
+      <button class="copy-btn" onclick="copyResponses()">Copy My Responses</button>
+      <br>
+      <span class="copy-toast" id="copy-toast">Copied to clipboard</span>
+    </div>
+
+  </div><!-- /main-content -->
+
+  <footer>© 2026 Ceyda Seren. All rights reserved.</footer>
+</div><!-- /page-wrap -->
+
+<script>
+// ── STARS ──
+(function() {
+  const container = document.getElementById('stars');
+  for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2 + 0.5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      top:${Math.random()*100}%; left:${Math.random()*100}%;
+      --op:${Math.random()*0.6+0.1};
+      --dur:${Math.random()*4+2}s;
+      animation-delay:${Math.random()*5}s;
+    `;
+    container.appendChild(s);
+  }
+})();
+
+// ── CURSOR TRAIL ──
+(function() {
+  let moveCount = 0;
+  const colors = ['#1cd6e7', '#8051c8', '#f62bd1', '#f4a749'];
+  document.addEventListener('mousemove', function(e) {
+    moveCount++;
+    const dot = document.createElement('div');
+    dot.className = 'trail-dot';
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const size = Math.random() * 5 + 3;
+    dot.style.cssText = `
+      left:${e.clientX - size/2}px; top:${e.clientY - size/2}px;
+      width:${size}px; height:${size}px;
+      background:${color};
+      box-shadow: 0 0 6px ${color};
+    `;
+    document.body.appendChild(dot);
+    setTimeout(() => dot.remove(), 700);
+
+    if (moveCount % 15 === 0) {
+      const spark = document.createElement('div');
+      spark.className = 'trail-sparkle';
+      spark.textContent = '✦';
+      spark.style.cssText = `left:${e.clientX-6}px; top:${e.clientY-6}px;`;
+      document.body.appendChild(spark);
+      setTimeout(() => spark.remove(), 900);
+    }
+  });
+})();
+
+// ── FEELING TAGS ──
+function toggleFeeling(el) {
+  const textarea = document.getElementById('reflection-1');
+  const word = el.textContent.trim();
+  const isActive = el.classList.contains('active');
+
+  if (isActive) {
+    // Remove from textarea
+    el.classList.remove('active');
+    let current = textarea.value;
+    // Remove the word whether it's at the start, middle, or end
+    const patterns = [
+      new RegExp('^' + escapeRegex(word) + ',\\s*', 'i'),
+      new RegExp(',\\s*' + escapeRegex(word) + '(?=,|$)', 'gi'),
+      new RegExp('^' + escapeRegex(word) + '$', 'i')
+    ];
+    patterns.forEach(p => { current = current.replace(p, ''); });
+    textarea.value = current.trim().replace(/^,\s*/, '').replace(/,\s*$/, '');
+  } else {
+    // Add to textarea
+    el.classList.add('active');
+    const current = textarea.value.trim();
+    textarea.value = current ? current + ', ' + word : word;
+  }
+}
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+function selectAlignment(choice) {
+  const soul = document.getElementById('opt-soul');
+  const ego = document.getElementById('opt-ego');
+  const note = document.getElementById('soul-note');
+  soul.classList.remove('selected-soul');
+  ego.classList.remove('selected-ego');
+  if (choice === 'soul') {
+    soul.classList.add('selected-soul');
+    note.style.display = 'block';
+    note.textContent = 'Beautiful. A soul aligned vision is calling you forward from within. Keep moving.';
+  } else {
+    ego.classList.add('selected-ego');
+    note.style.display = 'block';
+    note.textContent = 'Worth pausing here. What is underneath this vision? Is there a soul aligned version waiting to emerge? You can revisit your timeline description before moving to Step 7.';
+  }
+}
+
+// ── TIMELINE NAME PREVIEW ──
+function updateTimelinePreview() {
+  const input = document.getElementById('timeline-name-input').value.trim();
+  const preview = document.getElementById('tl-name-preview');
+  const previewText = document.getElementById('tl-preview-text');
+  if (input.length > 0) {
+    previewText.textContent = input;
+    preview.classList.add('visible');
+  } else {
+    preview.classList.remove('visible');
+  }
+}
+
+// ── COPY RESPONSES ──
+function copyResponses() {
+  const r1 = document.getElementById('reflection-1').value.trim();
+  const name = document.getElementById('timeline-name-input').value.trim();
+  const soul = document.getElementById('opt-soul').classList.contains('selected-soul') ? 'Soul Aligned' :
+               document.getElementById('opt-ego').classList.contains('selected-ego') ? 'Ego Aligned' : 'Not selected';
+
+  let text = '=== TIMELINE JUMPERS — STEP 6: EMOTIONAL SIGNATURE ===\n\n';
+  text += 'FEELINGS ON MY TIMELINE\n' + (r1 || '(not completed)') + '\n\n';
+  text += 'SOUL ALIGNED FILTER\n' + soul + '\n\n';
+  text += 'MY TIMELINE NAME\n' + (name || '(not completed)') + '\n\n';
+  text += '=== END OF STEP 6 ===';
+
+  // Use a hidden textarea for reliable cross-iframe copy
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    var ok = document.execCommand('copy');
+    if (ok) { showToast(); }
+    else { fallbackCopy(text); }
+  } catch(e) {
+    fallbackCopy(text);
+  }
+  document.body.removeChild(ta);
+}
+
+function fallbackCopy(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(showToast).catch(function() {
+      alert('Could not copy automatically. Please copy the text manually.');
+    });
+  } else {
+    alert('Could not copy automatically. Please copy the text manually.');
+  }
+}
+function showToast() {
+  var toast = document.getElementById('copy-toast');
+  toast.classList.add('show');
+  setTimeout(function() {
+    toast.classList.remove('show');
+  }, 2500);
+}
+
+// ── DONE BUTTON ──
+sessionStorage.removeItem('step6done');
+function markDone() {
+  document.getElementById('done-btn').style.display = 'none';
+  document.getElementById('complete-text').style.display = 'block';
+  sessionStorage.setItem('step6done', '1');
+}
+</script>
+</body>
+</html>
