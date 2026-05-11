@@ -754,14 +754,36 @@
     display: block;
   }
 
+  /* ── SKOOL BUTTON ── */
+  .skool-btn-wrap {
+    padding: 0 24px 48px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .skool-btn {
+    display: block;
+    width: 100%;
+    background: var(--gradient);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 30px;
+    padding: 16px 28px;
+    transition: opacity 0.2s;
+  }
+  .skool-btn:hover { opacity: 0.85; }
+
   /* ── NAV BUTTONS ── */
   .nav-buttons {
     display: flex;
-    justify-content: flex-end;
     align-items: center;
+    gap: 16px;
     padding-top: 8px;
     margin-bottom: 48px;
-    gap: 12px;
   }
   .btn-done {
     background: var(--gradient);
@@ -777,15 +799,6 @@
     transition: opacity 0.2s;
   }
   .btn-done:hover { opacity: 0.85; }
-  .step-complete-text {
-    display: none;
-    font-family: 'Inter', sans-serif;
-    font-weight: 600;
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--cyan);
-  }
 
   /* ── FOOTER ── */
   footer {
@@ -796,6 +809,22 @@
     font-weight: 300;
     font-size: 11px;
     color: rgba(248,245,255,0.25);
+  }
+
+  @keyframes tapRipple {
+    0% { transform: scale(0); opacity: 0.6; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+  .tap-ripple {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(28,214,231,0.5), transparent);
+    pointer-events: none;
+    z-index: 9999;
+    transform: scale(0);
+    animation: tapRipple 0.5s ease-out forwards;
   }
 
   /* ── MOBILE ── */
@@ -984,22 +1013,24 @@
       </div>
     </div>
 
-    <!-- Mark as Done — right after last reflection -->
+    <!-- Copy My Responses — after last section -->
     <div class="nav-buttons section-block">
-      <button class="btn-done" id="done-btn" onclick="markDone()">Done</button>
-      <span class="step-complete-text" id="complete-text">✓ Step Complete</span>
+      <button class="btn-done" id="done-btn" onclick="copyResponses()">Copy My Responses</button>
+      <span class="copy-toast" id="copy-toast">Copied to clipboard</span>
     </div>
 
     <!-- Save Your Work -->
     <div class="section-block save-work-card">
       <div class="save-work-title">Save Your Work</div>
-      <div class="save-work-sub">Your responses are not saved automatically. Click below to copy them, then paste into your notes app on your phone or computer.</div>
-      <button class="copy-btn" onclick="copyResponses()">Copy My Responses</button>
-      <br>
-      <span class="copy-toast" id="copy-toast">Copied to clipboard</span>
+      <div class="save-work-sub">Your responses are not saved automatically. Use the Copy My Responses button above to copy them, then paste into your notes app on your phone or computer.</div>
     </div>
 
   </div><!-- /main-content -->
+
+  <!-- Take Me Back to Skool -->
+  <div class="skool-btn-wrap">
+    <a href="https://www.skool.com/timeline-jumpers-9976/classroom" class="skool-btn">Take Me Back to Skool</a>
+  </div>
 
   <footer>© 2026 Ceyda Seren. All rights reserved.</footer>
 </div><!-- /page-wrap -->
@@ -1023,8 +1054,9 @@
   }
 })();
 
-// ── CURSOR TRAIL ──
+// ── CURSOR TRAIL (desktop only) ──
 (function() {
+  if ('ontouchstart' in window) return;
   let moveCount = 0;
   const colors = ['#1cd6e7', '#8051c8', '#f62bd1', '#f4a749'];
   document.addEventListener('mousemove', function(e) {
@@ -1041,7 +1073,6 @@
     `;
     document.body.appendChild(dot);
     setTimeout(() => dot.remove(), 700);
-
     if (moveCount % 15 === 0) {
       const spark = document.createElement('div');
       spark.className = 'trail-sparkle';
@@ -1052,6 +1083,19 @@
     }
   });
 })();
+
+// ── TAP RIPPLE (mobile only) ──
+if ('ontouchstart' in window) {
+  document.addEventListener('touchstart', function(e) {
+    const touch = e.touches[0];
+    const ripple = document.createElement('div');
+    ripple.className = 'tap-ripple';
+    ripple.style.left = (touch.clientX - 30) + 'px';
+    ripple.style.top = (touch.clientY - 30) + 'px';
+    document.body.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 500);
+  }, { passive: true });
+}
 
 // ── FEELING TAGS ──
 function toggleFeeling(el) {
@@ -1158,13 +1202,6 @@ function showToast() {
   }, 2500);
 }
 
-// ── DONE BUTTON ──
-sessionStorage.removeItem('step6done');
-function markDone() {
-  document.getElementById('done-btn').style.display = 'none';
-  document.getElementById('complete-text').style.display = 'block';
-  sessionStorage.setItem('step6done', '1');
-}
 </script>
 </body>
 </html>
